@@ -4,11 +4,24 @@ const letterInput = document.querySelector (".letter");
 const wordProgress = document.querySelector (".word-in-progress");
 const remainingGuess = document.querySelector (".remaining");
 const remainingGuessSpan = document.querySelector (".remaining span");
+let remainingGuesses = 8;
 const playAgainButton = document.querySelector (".play-again");
 const message = document.querySelector (".message");
 
-const word =  "magnolia";
+let word =  "magnolia";
 const guessedLetters = [];
+
+const getWord = async function () {
+const response = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
+const words = await response.text();
+const wordArray = words.split("\n");
+const randomIndex = Math.floor(Math.random () * wordArray.length);
+word = wordArray[randomIndex].trim();
+progress(word);
+};
+
+getWord();
+
 
 
 //display symbols as placeholder for chosen word's lettters
@@ -71,6 +84,7 @@ message.innerText = "You've used that already - Try again";
 }else {
   guessedLetters.push(guess);
 console.log(guessedLetters);
+countGuesses(guess);
 displayLetters();
 updateWordProgress(guessedLetters);
 
@@ -105,6 +119,24 @@ for (const letter of wordArray) {
 
 wordProgress.innerText = showWord.join("");
 correctGuess();
+};
+
+const countGuesses = function(guess){
+  const upperWord = word.toUpperCase();
+  if (!upperWord.includes(guess)){
+    //wrong guess, lose a chance
+    message.innerText = `Sorry, the word does not contain ${guess}`;
+    remainingGuesses -=1;
+  } else{
+    message.innerText = `Well done, the word has the letter ${guess}`;
+
+  }if (remainingGuesses === 0) {
+  message.innerHTML = `Game over.  The word is <span class = "highlight">${word}</span`;
+
+} else if (remainingGuesses === 1) {
+  remainingGuessSpan.innerText = `${remainingGuesses} guess`;
+}else{   remainingGuessSpan.innerText = `${remainingGuesses} guesses`;
+}
 };
 
 const correctGuess = function () {
